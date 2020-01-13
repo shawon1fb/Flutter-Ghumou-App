@@ -1,9 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class AppState with ChangeNotifier {
+  static const platform = const MethodChannel('com.shahanulshaheb.ghumao');
+
+  Future<void> _getBatteryLevel() async {
+    String batteryLevel;
+    try {
+      final int result =
+      await platform.invokeMethod('getBatteryLevel', <String, dynamic>{
+        'song': "bondhu hoi hoi",
+        'volume': "12",
+      });
+      batteryLevel = 'Battery level at $result % .';
+    } on PlatformException catch (e) {
+      batteryLevel = "Failed to get battery level: '${e.message}'.";
+    }
+  }
+
+  Future<void> StartBackground(LatLng l) async {
+    print('======================================');
+    print("background service called from flutter");
+    try {
+      final int result = await platform.invokeMethod(
+        'startBackgroundService',
+        <String, dynamic>{
+          'lat': "${l.latitude}",
+          'lng': "${l.longitude}",
+        },
+      );
+    } on PlatformException catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> stopBackground() async {
+    print('======================================');
+    print("background service stoped from flutter");
+    try {
+      final int result = await platform.invokeMethod(
+        'stopBackgroundService',
+      );
+    } on PlatformException catch (e) {
+      print(e);
+    }
+  }
+
   static LatLng _initialPosition = LatLng(23.0, 90.0);
   LatLng _lastPosition = _initialPosition;
   bool locationServiceActive = true;
@@ -24,12 +69,13 @@ class AppState with ChangeNotifier {
   Set<Marker> get markers => _markers;
 
   AppState() {
-    getUserLocation();
+      getUserLocation();
     // _loadingInitialPosition();
   }
 
 // ! TO GET THE USERS LOCATION
   void getUserLocation() async {
+    stopBackground();
     print("GET USER METHOD RUNNING =========");
     Position position;
     try {
@@ -67,7 +113,7 @@ class AppState with ChangeNotifier {
   // ! SEND REQUEST
   void sendRequest(String intendedLocation) async {
     List<Placemark> placemark =
-        await Geolocator().placemarkFromAddress(intendedLocation);
+    await Geolocator().placemarkFromAddress(intendedLocation);
     double latitude = placemark[0].position.latitude;
     double longitude = placemark[0].position.longitude;
     LatLng destination = LatLng(latitude, longitude);
@@ -105,7 +151,9 @@ class AppState with ChangeNotifier {
 
   //add marker to point
   void onAddMarkerPressed() {
+    print('button pressed');
     _addMarker(_lastPosition, _lastPosition.toString());
+    StartBackground(_lastPosition);
   }
 
   Future<void> MoveCamera_to_location(CameraPosition k) async {

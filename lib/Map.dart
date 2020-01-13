@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:ghumao_app/state/AppState.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -12,6 +13,10 @@ class MapSample extends StatefulWidget {
 }
 
 class MapSampleState extends State<MapSample> {
+  String _batteryLevel = 'Unknown battery level.';
+
+  //====================================================
+
   String address = '';
   final CameraPosition C_position =
       CameraPosition(target: LatLng(23.0, 90.0), zoom: 10.0);
@@ -26,7 +31,7 @@ class MapSampleState extends State<MapSample> {
       children: <Widget>[
         GoogleMap(
           initialCameraPosition: C_position,
-          /* CameraPosition(
+          /*CameraPosition(
                       target: appState.initialPosition, zoom: 10.0),*/
           onMapCreated: appState.onCreated,
           myLocationEnabled: true,
@@ -136,6 +141,7 @@ class MapSampleState extends State<MapSample> {
             ),
           ),
         ),*/
+
         Align(
           alignment: Alignment(0.9, 0.9),
           child: FloatingActionButton(
@@ -153,7 +159,9 @@ class MapSampleState extends State<MapSample> {
           child: Card(
             color: Colors.blue,
             child: InkWell(
-              onTap: appState.onAddMarkerPressed,
+              onTap: () {
+                appState.onAddMarkerPressed();
+              }, //appState.onAddMarkerPressed,
               child: Container(
                 padding: const EdgeInsets.all(10.0),
                 /*decoration: BoxDecoration(
@@ -161,7 +169,7 @@ class MapSampleState extends State<MapSample> {
                   borderRadius: BorderRadius.circular(5.0),
                 ),*/
                 child: Text(
-                  'Conferm Location',
+                  'Confirm button', //Conferm Location
                   style: TextStyle(
                     //  fontSize: 18.0,
                     color: Colors.white,
